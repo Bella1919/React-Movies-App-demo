@@ -2,7 +2,8 @@ import React from 'react';
 import _ from 'lodash';
 
 const Pagination = (props) => {
-    const { itemsCount, pageSize } = props;
+    const { itemsCount, pageSize,currentPage, onPageChange } = props;
+    console.log(currentPage);
     const pagesCount = Math.ceil(itemsCount/pageSize);
     //Base on the pagesCount we need creat a array to the pages insaid like this:
     //[1,2.....pagesCount].map() , use lodash to get the array.
@@ -15,8 +16,11 @@ const Pagination = (props) => {
         <nav>
             <ul className="pagination">
                 {pages.map(page=>(
-                    <li key ={page} className="page-item">
-                    <a className="page-link">{page}</a>
+                    <li key ={page} 
+                        className={page===currentPage? "page-item active":"page-item"}>
+                    <a className="page-link"
+                        onClick={()=>onPageChange(page)}
+                    >{page}</a>
                     </li>
                 ))}
             </ul>
