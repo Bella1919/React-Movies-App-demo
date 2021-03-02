@@ -1,16 +1,33 @@
 import React, { Component } from 'react';
-import { getMovies } from '../services/fakeMovieService';
+import ListGroup from './common/listGroup';
 import Like from './common/like';
 import Pagination from './common/pagination';
 import {paginate} from '../utils/paginate';
+import { getMovies } from '../services/fakeMovieService';
+import {getGenres} from '../services/fakeGenreService';
+
+
 
 class Movies extends Component {
     //Movie Data pass in
     state = {
-       movies:getMovies(),
+       movies:[],
+       //we can use same way like movies but in really word we need to pass the data from back-end.
+       genres:[],
        currentPage:1,
        pageSize:4
     };
+    //we use componentDidMount to get new data
+    componentDidMount(){
+        const genres = [{name:"All Genres"},...getGenres()]
+        this.setState({
+            movies:getMovies(),
+            //after const genres we replace getGenres() to genres property
+            //And cause the key and value are same genres:genres so we can short for genres
+            genres
+        });
+
+    }
     //When the handleDelete has a argument 'movie' have to change the callway
     //to arrow function call as well to pass the argument.
     handleDelete =(movie)=>{
@@ -28,60 +45,90 @@ class Movies extends Component {
     handlePageChange = (page)=>{
         this.setState ({currentPage:page});
     };
+    handleGenreSelect=(genre)=>{
+        //we can ignore the currentPage:1， save it just cause might others need in future
+        this.setState({selectedGenre: genre, currentPage:1 });
+         
+    }
 
     render() { 
         //Put the prpperty 'length' in to a object variable destructure.
         const {length:count} = this.state.movies;
-        const { pageSize,currentPage,movies:allMovies} = this.state;
+        const { 
+            pageSize,
+            currentPage,
+            movies:allMovies,
+            selectedGenre
+        } = this.state;
+        //if there has movies render everything else just render one sentence as below:
         if(count===0) 
         return <p>There are no movies in the database.</p>;
+        //Before paginate we need use filtered to filter movies of genre first.
+        const filtered = 
+            selectedGenre && selectedGenre._id
+            ? allMovies.filter(m=>m.genre._id === selectedGenre._id) 
+            : allMovies;
         //pass data to {paginate}
-        const movies = paginate( allMovies,currentPage,pageSize );
+        const movies = paginate( filtered, currentPage, pageSize );
         return (
-        <React.Fragment>
-            <p>Showing {count} movies in the database.</p>
-            <table className="table">
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Genre</th>
-                        <th>stock</th>
-                        <th>Rate</th>
-                        <th></th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {/* //Remmber every time use the map have to give a unique key value to the li or tr... */}
-                    {movies.map(movie=>(
-                    <tr key={movie._id}>
-                        <td>{movie.title}</td>
-                        <td>{movie.genre.name}</td>
-                        <td>{movie.numberInStock}</td>
-                        <td>{movie.dailyRentalRate}</td>
-                        <td>
-                            <Like liked={movie.like} onLikeToggle={()=>this.handleLike(movie)} />
-                        </td>
-                        <td>
-                            <button
-                                onClick = {()=>this.handleDelete(movie)} 
-                                className="btn btn-danger btn-sm"
-                            >
-                                Delete
-                            </button>
-                        </td>
-                    </tr>
-                    ))}
-                    
-                </tbody>
-            </table>
-            <Pagination itemsCount={count} 
-                        // pageSize={10}
-                        currentPage={currentPage}
-                        pageSize={pageSize}
-                        onPageChange={this.handlePageChange} 
-            />
-        </React.Fragment>
+            <div className="row">
+                <div className="col-3">
+                    <ListGroup 
+                        items={this.state.genres} 
+                        //cause the child component listGroup use the default props, so here dont need to pass the property to child.
+                        // textProperty = "name"
+                        // valueProperty = "_id"
+                        selectedItem={selectedGenre}
+                        onItemSelect={this.handleGenreSelect} 
+                    />
+                </div>
+                <div className="col">
+                    {/* instead pass use movies.length we can use dynamic property filter.length  */}
+                    <p>Showing {filtered.length} movies in the database.</p>
+                    <table className="table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Genre</th>
+                                <th>stock</th>
+                                <th>Rate</th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {/* //Remmber every time use the map have to give a unique key value to the li or tr... */}
+                            {movies.map(movie=>(
+                            <tr key={movie._id}>
+                                <td>{movie.title}</td>
+                                <td>{movie.genre.name}</td>
+                                <td>{movie.numberInStock}</td>
+                                <td>{movie.dailyRentalRate}</td>
+                                <td>
+                                    <Like liked={movie.like} onLikeToggle={()=>this.handleLike(movie)} />
+                                </td>
+                                <td>
+                                    <button
+                                        onClick = {()=>this.handleDelete(movie)} 
+                                        className="btn btn-danger btn-sm"
+                                    >
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                            ))}
+                            
+                        </tbody>
+                    </table>
+                    {/* instead pass use movies.length we can use dynamic property filter.length  */}
+                    <Pagination itemsCount={filtered.length} 
+                                // pageSize={10}
+                                currentPage={currentPage}
+                                pageSize={pageSize}
+                                onPageChange={this.handlePageChange} 
+                    />
+                </div>
+            </div>
         );
     }
 }

@@ -1,9 +1,10 @@
 import React from 'react';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
 
 const Pagination = (props) => {
     const { itemsCount, pageSize,currentPage, onPageChange } = props;
-    console.log(currentPage);
+    // currenPage use to highlight the pagination
     const pagesCount = Math.ceil(itemsCount/pageSize);
     //Base on the pagesCount we need creat a array to the pages insaid like this:
     //[1,2.....pagesCount].map() , use lodash to get the array.
@@ -27,6 +28,13 @@ const Pagination = (props) => {
         </nav>
         
     );
-}
+};
+//Use propTypes to check the property type of  pagination
+Pagination.propTypes = {
+    itemsCount:PropTypes.number.isRequired, 
+    pageSize:PropTypes.number.isRequired,
+    currentPage:PropTypes.number.isRequired,
+    onPageChange:PropTypes.func.isRequired
+};
  
 export default Pagination;
