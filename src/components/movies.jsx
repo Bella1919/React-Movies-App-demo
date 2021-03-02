@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import { getMovies } from '../services/fakeMovieService';
 import Like from './common/like'
+import Pagination from './common/pagination'
 
 class Movies extends Component {
     //Movie Data pass in
     state = {
-       movies:getMovies()
+       movies:getMovies(),
+       pageSize:4
     };
     //When the handleDelete has a argument 'movie' have to change the callway
     //to arrow function call as well to pass the argument.
@@ -21,9 +23,12 @@ class Movies extends Component {
         movies[index].like = !movies[index].like;
         this.setState({ movies });
     };
+    handlePageChange = (page)=>{
+        console.log(page)
+    };
 
     render() { 
-        //Put the prpperty 'length' in to a object variable.
+        //Put the prpperty 'length' in to a object variable destructure.
         const {length:count} = this.state.movies;
         if(count===0) 
         return <p>There are no movies in the database.</p>;
@@ -65,6 +70,11 @@ class Movies extends Component {
                     
                 </tbody>
             </table>
+            <Pagination itemsCount={count} 
+                        // pageSize={10}
+                        pageSize={this.state.pageSize}
+                        onPageChange={this.handlePageChange} 
+            />
         </React.Fragment>
         );
     }
