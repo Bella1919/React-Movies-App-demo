@@ -1,14 +1,9 @@
 import React from 'react'
 
-const ListGroup = (props) => {
-    const { 
-        items, 
-        textProperty, 
-        valueProperty, 
-        onItemSelect, 
-        selectedItem 
-    } = props;
-    //selectedItem use to highlight the genre option and find out which genre is selected.
+//selectedItem use to highlight the genre option and find out which genre is selected.
+//Destructuring Arguments like below:
+const ListGroup = ({ items, textProperty, valueProperty, onItemSelect, selectedItem }) => {
+    
 
     return ( 
         <ul className="list-group">

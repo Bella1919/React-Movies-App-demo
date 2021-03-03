@@ -2,9 +2,9 @@ import React from 'react';
 import TableHeader from './tableHeader';
 import TableBody from './tableBody';
 
-const Table = (props) => {
-    //data =movies
-    const {columns, sortColumn, onSort, data} = props;
+ //data =movies
+ //Destructuring Arguments like below:
+const Table = ({columns, sortColumn, onSort, data}) => {
     return ( 
         <table className="table">
                 <TableHeader 
