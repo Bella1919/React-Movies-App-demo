@@ -55,10 +55,8 @@ class Movies extends Component {
         
         this.setState({sortColumn});
     }
-
-    render() { 
-        //Put the prpperty 'length' in to a object variable destructure.
-        const {length:count} = this.state.movies;
+    //encapsulate the method
+    getPagedData = () =>{
         const { 
             pageSize,
             currentPage,
@@ -66,9 +64,7 @@ class Movies extends Component {
             selectedGenre,
             sortColumn
         } = this.state;
-        //if there has movies render everything else just render one sentence as below:
-        if(count===0) 
-        return <p>There are no movies in the database.</p>;
+
         //First,filtered to filter movies of genre first.
         const filtered = 
             selectedGenre && selectedGenre._id
@@ -76,9 +72,26 @@ class Movies extends Component {
             : allMovies;
         //Second, sorting have to after filter Genre.
         const sorted = _.orderBy(filtered, [sortColumn.path],[sortColumn.order]);
-
         //Third, paginnation. Pass data to {paginate}
         const movies = paginate( sorted, currentPage, pageSize );
+
+        return {totalCount:filtered.length,data:movies};
+    }
+
+    render() { 
+        //Put the prpperty 'length' in to a object variable destructure.
+        const {length:count} = this.state.movies;
+        const { 
+            pageSize,
+            currentPage,
+            sortColumn
+        } = this.state;
+        //if there has movies render everything else just render one sentence as below:
+        if(count===0) 
+        return <p>There are no movies in the database.</p>;
+        //else can ignore.
+        else{
+        const { totalCount, data:movies } = this.getPagedData();
         return (
             <div className="row">
                 <div className="col-3">
@@ -87,13 +100,13 @@ class Movies extends Component {
                         //cause the child component listGroup use the default props, so here dont need to pass the property to child.
                         // textProperty = "name"
                         // valueProperty = "_id"
-                        selectedItem={selectedGenre}
+                        selectedItem={this.state.selectedGenre}
                         onItemSelect={this.handleGenreSelect} 
                     />
                 </div>
                 <div className="col">
                     {/* instead pass use movies.length we can use dynamic property filter.length  */}
-                    <p>Showing {filtered.length} movies in the database.</p>
+                    <p>Showing {totalCount} movies in the database.</p>
                     <MoviesTable 
                         movies={movies} 
                         sortColumn={sortColumn}
@@ -102,7 +115,7 @@ class Movies extends Component {
                         onSort={this.handleSort} 
                     />
                     {/* instead pass use movies.length we can use dynamic property filter.length  */}
-                    <Pagination itemsCount={filtered.length} 
+                    <Pagination itemsCount={totalCount} 
                                 // pageSize={10}
                                 currentPage={currentPage}
                                 pageSize={pageSize}
@@ -112,6 +125,7 @@ class Movies extends Component {
             </div>
         );
     }
+  }
 }
  
 export default Movies;
