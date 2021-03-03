@@ -1,4 +1,5 @@
 import React from 'react';
+//lodash can creat an array of numbers
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 
@@ -10,8 +11,9 @@ const Pagination = (props) => {
     //[1,2.....pagesCount].map() , use lodash to get the array.
     if(pagesCount===1)return null;
     //We dont want to show the page number when it equal to 1.
+    
     const pages = _.range(1,pagesCount +1 );
-    //cause the .range dont includ the end numbers(pagesCount) itself, so we have to add +1.
+    // Cause the _.range dont includ the end numbers(pagesCount) itself, so we have to add +1.
 
     return (
         <nav>

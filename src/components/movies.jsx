@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import ListGroup from './common/listGroup';
-import Like from './common/like';
 import Pagination from './common/pagination';
 import {paginate} from '../utils/paginate';
 import { getMovies } from '../services/fakeMovieService';
 import {getGenres} from '../services/fakeGenreService';
+import MoviesTable from './moviesTable';
+import _ from 'lodash';
 
 
 
@@ -15,11 +16,12 @@ class Movies extends Component {
        //we can use same way like movies but in really word we need to pass the data from back-end.
        genres:[],
        currentPage:1,
-       pageSize:4
+       pageSize:4,
+       sortColumn:{path:"title", order:"asc"}
     };
-    //we use componentDidMount to get new data
+    //We use componentDidMount to get new data after rendering
     componentDidMount(){
-        const genres = [{name:"All Genres"},...getGenres()]
+        const genres = [{_id:"", name:"All Genres"},...getGenres()]
         this.setState({
             movies:getMovies(),
             //after const genres we replace getGenres() to genres property
@@ -48,7 +50,10 @@ class Movies extends Component {
     handleGenreSelect=(genre)=>{
         //we can ignore the currentPage:1， save it just cause might others need in future
         this.setState({selectedGenre: genre, currentPage:1 });
-         
+    }
+    handleSort =(sortColumn)=>{
+        
+        this.setState({sortColumn});
     }
 
     render() { 
@@ -58,18 +63,22 @@ class Movies extends Component {
             pageSize,
             currentPage,
             movies:allMovies,
-            selectedGenre
+            selectedGenre,
+            sortColumn
         } = this.state;
         //if there has movies render everything else just render one sentence as below:
         if(count===0) 
         return <p>There are no movies in the database.</p>;
-        //Before paginate we need use filtered to filter movies of genre first.
+        //First,filtered to filter movies of genre first.
         const filtered = 
             selectedGenre && selectedGenre._id
             ? allMovies.filter(m=>m.genre._id === selectedGenre._id) 
             : allMovies;
-        //pass data to {paginate}
-        const movies = paginate( filtered, currentPage, pageSize );
+        //Second, sorting have to after filter Genre.
+        const sorted = _.orderBy(filtered, [sortColumn.path],[sortColumn.order]);
+
+        //Third, paginnation. Pass data to {paginate}
+        const movies = paginate( sorted, currentPage, pageSize );
         return (
             <div className="row">
                 <div className="col-3">
@@ -85,41 +94,13 @@ class Movies extends Component {
                 <div className="col">
                     {/* instead pass use movies.length we can use dynamic property filter.length  */}
                     <p>Showing {filtered.length} movies in the database.</p>
-                    <table className="table">
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Genre</th>
-                                <th>stock</th>
-                                <th>Rate</th>
-                                <th></th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {/* //Remmber every time use the map have to give a unique key value to the li or tr... */}
-                            {movies.map(movie=>(
-                            <tr key={movie._id}>
-                                <td>{movie.title}</td>
-                                <td>{movie.genre.name}</td>
-                                <td>{movie.numberInStock}</td>
-                                <td>{movie.dailyRentalRate}</td>
-                                <td>
-                                    <Like liked={movie.like} onLikeToggle={()=>this.handleLike(movie)} />
-                                </td>
-                                <td>
-                                    <button
-                                        onClick = {()=>this.handleDelete(movie)} 
-                                        className="btn btn-danger btn-sm"
-                                    >
-                                        Delete
-                                    </button>
-                                </td>
-                            </tr>
-                            ))}
-                            
-                        </tbody>
-                    </table>
+                    <MoviesTable 
+                        movies={movies} 
+                        sortColumn={sortColumn}
+                        onDelete={this.handleDelete} 
+                        onLike={this.handleLike}
+                        onSort={this.handleSort} 
+                    />
                     {/* instead pass use movies.length we can use dynamic property filter.length  */}
                     <Pagination itemsCount={filtered.length} 
                                 // pageSize={10}

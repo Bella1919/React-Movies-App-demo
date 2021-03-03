@@ -13,7 +13,6 @@ const ListGroup = (props) => {
     return ( 
         <ul className="list-group">
             {items.map(item=>
-                
                 <li 
                     onClick={()=>onItemSelect(item)} 
                     style={{cursor:"pointer"}}
