@@ -22,6 +22,7 @@ const Pagination = (props) => {
                     <li key ={page} 
                         className={page===currentPage? "page-item active":"page-item"}>
                     <a className="page-link"
+                        style={{cursor:"pointer"}}
                         onClick={()=>onPageChange(page)}
                     >{page}</a>
                     </li>
