@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import Input from './common/input';
 
 class LoginForm extends Component {
-    //Use createRef to create React element way not recommand to use oftenly.
+    //Use createRefs to create React element way not recommand to use oftenly.
     // username = React.createRef();
     //ComponentDidMount is a Life hook
     // componentDidMount(){
@@ -10,25 +10,62 @@ class LoginForm extends Component {
     // }
     //
     state = {
-        account:{username:'',password:''}
+        account:{username:'',password:''},
+        //Here we use a object to instead of array of errors. Cause its much earsier to find the errors for given input fild.
+        // For object we can find the errors like this: errors['username']
+        //But if you use array will be like this: errors.find(e =>e.name==='username')
+        errors:{}
     }
+    //validate will validate the hole form.
+    validate =()=>{
+        const errors ={};
+        const{ account } = this.state;
+        //.trim means cut the whitespace of account.username.
+        if(account.username.trim()==='')
+            errors.username ='Username is required';
+        if(account.password.trim()==='')
+            errors.password ='Password is required';
+        return Object.keys(errors).length === 0 ? null:errors;
+    };
 
     handleSubmit = e =>{
         //This can stop default behavior of this event
         e.preventDefault();
-        //Here will call the server, rederecit the user to a different page
+        //The errors for validate of input.
+        const errors = this.validate();
+        // 
+        this.setState({ errors:errors || {} });
+        if(errors)return;
+        //Here will call the server, rederecit the user to a different page. Its a part of refs
         // const username = this.username.current.value;
         console.log('submitted')
+        //if errors is turn means it is null, the handleSubmit return it to the sever and console.log('submitted')
     };
+    //validatieProperty will just validate input.
+    //{name,value} instead of input, means {name,value}=input.
+    validateProperty = ({name,value}) => {
+        if (name === 'username'){
+            if(value.trim()==='') return 'Username is required.';
+        }
+        if (name === 'password'){
+            if(value.trim()==='') return 'Password is required.';
+        }
+    };
+
     //Cause we want to make the code more simple. So we destructure the e.currentTarget to input.
     handleChange = ({currentTarget:input}) =>{
+        const errors = {...this.state.errors};
+        const errorMessage = this.validateProperty(input);
+        if(errorMessage) errors[input.name] = errorMessage;
+        else delete errors[input.name];
+
         const account = {...this.state.account};
         //we use the braclet [e.currenTarget.name] to make .username dynamic.
         account[input.name] = input.value;
-        this.setState({ account });
+        this.setState({ account, errors });
     };
     render() { 
-        const {account} = this.state;
+        const {account,errors} = this.state;
         return ( 
             <div>
                  <h1>Login</h1>
@@ -38,12 +75,14 @@ class LoginForm extends Component {
                         value={account.username}
                         label="Username"
                         onChange={this.handleChange}
+                        error={errors.username}
                     />               
                     <Input 
                         name="password"
                         value={account.password}
                         label="Password"
                         onChange={this.handleChange}
+                        error={errors.password}
                     />
                     <button className="btn btn-primary">Login</button>
                  </form>
