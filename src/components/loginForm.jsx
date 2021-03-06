@@ -121,7 +121,10 @@ class LoginForm extends Component {
                         onChange={this.handleChange}
                         error={errors.password}
                     />
-                    <button className="btn btn-primary">Login</button>
+                    <button
+                        //when this.validate() result is null, null means Username and Password all work welll no error, and the null equal to false so the disable will be not working. And vice versa. 
+                        disabled={this.validate()} 
+                        className="btn btn-primary">Login</button>
                  </form>
             </div>
          );
