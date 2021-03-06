@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
+import Joi from 'joi-browser';
 import Input from './common/input';
+
 
 class LoginForm extends Component {
     //Use createRefs to create React element way not recommand to use oftenly.
@@ -15,17 +17,40 @@ class LoginForm extends Component {
         // For object we can find the errors like this: errors['username']
         //But if you use array will be like this: errors.find(e =>e.name==='username')
         errors:{}
+        //we want to make the errors dynamicly like this:
+        //errors:{
+        //     username:Username is required,
+        //     password:Password is required
+        // }
     }
+    //The schema is work for Joi
+    schema = {
+        username:Joi.string().required().label('Username'),
+        password:Joi.string().required().label('Passname')
+    }; 
+
     //validate will validate the hole form.
     validate =()=>{
-        const errors ={};
-        const{ account } = this.state;
-        //.trim means cut the whitespace of account.username.
-        if(account.username.trim()==='')
-            errors.username ='Username is required';
-        if(account.password.trim()==='')
-            errors.password ='Password is required';
-        return Object.keys(errors).length === 0 ? null:errors;
+        //cause the abortEarly will make the Joi cannot get both message of username and password.So to set abortEarly to false will aviod that.
+        const options = { abortEarly:false};
+        //we use object constructure to replace result to {error} means const {error}=result.
+        const {error} = Joi.validate(this.state.account,this.schema,options);
+        // console.log(result);
+        if(!error) return null;
+
+        const errors = {};
+        for(let item of error.details)
+            errors[item.path[0]] = item.message;
+        return errors;
+        //After rerange validate we abandon the below:
+        // const errors ={};
+        // const{ account } = this.state;
+        // //.trim means cut the whitespace of account.username.
+        // if(account.username.trim()==='')
+        //     errors.username ='Username is required';
+        // if(account.password.trim()==='')
+        //     errors.password ='Password is required';
+        // return Object.keys(errors).length === 0 ? null:errors;
     };
 
     handleSubmit = e =>{
@@ -42,14 +67,26 @@ class LoginForm extends Component {
         //if errors is turn means it is null, the handleSubmit return it to the sever and console.log('submitted')
     };
     //validatieProperty will just validate input.
-    //{name,value} instead of input, means {name,value}=input.
+    //{name,value} instead of input, means {name,value}=input, means input.name and input.value.
     validateProperty = ({name,value}) => {
-        if (name === 'username'){
-            if(value.trim()==='') return 'Username is required.';
-        }
-        if (name === 'password'){
-            if(value.trim()==='') return 'Password is required.';
-        }
+        const obj ={ [name]: value };
+        //cause we dont want to make a hold validate so we make a new local schema.
+        const schema = {[name]:this.schema[name]}
+        const {error} = Joi.validate(obj,schema);
+        return error? error.details[0].message : null;
+        //you also can write the last row like this:
+        // if(!result.error) return null;
+        // return result.error.details[0].message;
+
+
+        //Here are the second way to write the validateProperty method:
+        // //.trim means cut the whitespace of account.username.
+        // if (name === 'username'){
+        //     if(value.trim()==='') return 'Username is required.';
+        // }
+        // if (name === 'password'){
+        //     if(value.trim()==='') return 'Password is required.';
+        // }
     };
 
     //Cause we want to make the code more simple. So we destructure the e.currentTarget to input.
