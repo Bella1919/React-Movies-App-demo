@@ -3,7 +3,7 @@ import {Link} from 'react-router-dom';
 import Table from './common/table';
 import Like from './common/like';
 
-
+//The child component of Movies.
 //Cause we need put some method. So we have to use class to determin the sort order instead of SFC.
 class MoviesTable extends Component {
    columns = [

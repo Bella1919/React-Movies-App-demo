@@ -1,7 +1,7 @@
-import React, { Component } from 'react'
+import React from 'react'
 import Joi from 'joi-browser';
 import Form from './common/form';
-import Input from './common/input';
+
 
 
 class LoginForm extends Form {
@@ -113,12 +113,16 @@ class LoginForm extends Form {
     //     this.setState({ data, errors });
     // };
     render() { 
-        const {data,errors} = this.state;
+        // const {data,errors} = this.state;
         return ( 
             <div>
                  <h1>Login</h1>
                  <form onSubmit={this.handleSubmit}>
-                    <Input 
+                    {this.renderInput('username','Username')}
+                    {this.renderInput('password','Password','password')} 
+                    {this.renderButton('Login')}
+                    {/* We can use the method to replace this button  and we remove the method to a reusable Form component */}
+                    {/* <Input 
                         name="username"
                         value={data.username}
                         label="Username"
@@ -135,7 +139,8 @@ class LoginForm extends Form {
                     <button
                         //when this.validate() result is null, null means Username and Password all work welll no error, and the null equal to false so the disable will be not working. And vice versa. 
                         disabled={this.validate()} 
-                        className="btn btn-primary">Login</button>
+                        className="btn btn-primary">Login
+                    </button> */}
                  </form>
             </div>
          );
