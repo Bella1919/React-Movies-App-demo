@@ -26,7 +26,7 @@ class MovieForm extends Form{
         numberInStock:Joi.number().required().min(0).max(100).label('Number in Stock'),
         dailyRentalRate:Joi.number().required().min(0).max(10).label('Daily Rental Rate')
     };
-    //componentDidMount will uodate after render
+    //componentDidMount will update after render
     componentDidMount(){
         const genres = getGenres();
         this.setState({genres});

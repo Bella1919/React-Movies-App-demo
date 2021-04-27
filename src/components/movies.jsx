@@ -3,7 +3,7 @@ import ListGroup from './common/listGroup';
 import Pagination from './common/pagination';
 import {paginate} from '../utils/paginate';
 import { getMovies } from '../services/fakeMovieService';
-import {getGenres} from '../services/fakeGenreService';
+import { getGenres } from '../services/genreService';
 import MoviesTable from './moviesTable';
 import _ from 'lodash';
 import {Link} from 'react-router-dom';
@@ -24,15 +24,15 @@ class Movies extends Component {
        sortColumn:{path:"title", order:"asc"}
     };
     //We use componentDidMount to get new data after rendering
-    componentDidMount(){
-        const genres = [{_id:"", name:"All Genres"},...getGenres()]
+    async componentDidMount(){
+        const {data} = await getGenres()
+        const genres = [{_id:"", name:"All Genres"},...data]
         this.setState({
             movies:getMovies(),
             //after const genres we replace getGenres() to genres property
             //And cause the key and value are same genres:genres so we can short for genres
             genres
         });
-
     }
     //When the handleDelete has a argument 'movie' have to change the callway
     //to arrow function call as well to pass the argument.
@@ -124,7 +124,7 @@ class Movies extends Component {
                         />
                     </div>
                     <div className="col">                      
-                        <Link to="/movies/new" className="btn btn-primary mb-3"> 
+                        <Link to="/movies/new" className="btn btn-primary mb-2"> 
                         New Movie
                         </Link>                      
                         {/* instead pass use movies.length we can use dynamic property filter.length  */}
